@@ -1,0 +1,19 @@
+#img-container {
+    position: relative;
+  }
+  
+  .image-wrapper {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 50px!important;
+    width: 100%;
+  }
+
+  .image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 80px;
+  }
+  
