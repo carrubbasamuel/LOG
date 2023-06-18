@@ -30,23 +30,12 @@ app.get('/node/get.js', (req, res) => {
 });
 
 
-app.post('/node/get.js', (req, res) => {
-  const { id, nome, mail, pass } = req.body;
+app.post('/insert.js', (req, res) => {
+  const { immagineUrl } = req.body;
+  const query = "INSERT INTO img (immagini, ) VALUES (?)";
+
+
   
-
-  const sql = 'INSERT INTO user (id, nome, mail, pass) VALUES ( ?, ?, ?, ?)';
-  const values = [id, nome, mail, pass];
-
-  connection.query(sql, values, (err, result) => {
-    if (err) {
-      console.log('Dati ricevuti dal client:', req.body);
-      console.error('Errore nell\'esecuzione della query:', err);
-      res.status(500).json({ message: 'Errore nell\'esecuzione della query' });
-    } else {
-      console.log('Dati inseriti correttamente nel database:', result);
-      res.json({ message: 'Dati inseriti correttamente nel database' });
-    }
-  });
 });
 
 
@@ -58,6 +47,7 @@ app.post('/login', (req, res) => {
   console.log('Dati ricevuti dal client:', mail, pass);
 
   connection.query(sql, values, (err, results) => {
+
     if (err) {
       console.error('Errore nell\'esecuzione della query:', err);
       res.status(500).json({ message: 'Errore nell\'esecuzione della query' });
@@ -72,8 +62,21 @@ app.post('/login', (req, res) => {
             console.error('Errore nell\'esecuzione della query:', err);
             res.status(500).json({ message: 'Errore nell\'esecuzione della query' });
           } else {
-            console.log(products);
-            res.json({ success: true,  message: 'Accesso effettuato con successo', data: products });
+            const listImg = [];
+            connection.query("SELECT * FROM img JOIN products ON products.id = img.id_user WHERE img.id_user = ?", [userId], (err, img) => {
+              if(err) {
+                console.error('Errore nell\'esecuzione della query:', err);
+                res.status(500).json({ message: 'Errore nell\'esecuzione della query' });
+              }
+              else {
+                for(let i = 0; i < img.length; i++) {
+                  listImg.push(img[i].immagini);
+                }
+                
+                console.log(listImg);
+                res.json({ success: true,  message: 'Accesso effettuato con successo', data: products, img: listImg });
+              }
+            });
           }
         });
       } else {

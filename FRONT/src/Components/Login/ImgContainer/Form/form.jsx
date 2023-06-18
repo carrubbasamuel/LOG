@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Button, Col, Form, Row } from 'react-bootstrap';
 import '../../../API/api';
-import LoginData from "../../../API/api";
+import { LoginData } from "../../../API/api";
 import './form.css';
 
 
-export default function FormLogin({ setIsLogin ,setRelationalData,}) {
+export default function FormLogin({isLogin, setIsLogin , setRelationalData}) {
     const [data, setData] = useState([]);
 
 
@@ -17,17 +17,19 @@ export default function FormLogin({ setIsLogin ,setRelationalData,}) {
             mail: mail,
             pass: pass,
         };
-        
         setData(formData);
     }
 
+    
     useEffect(() => {
         if (data.length === 0) return;
         LoginData(data).then((response) => {
             if (response.success === true) {
+                console.log(response);
                 setIsLogin(true);
-                setRelationalData(response.data);
-                console.log(response.data);
+                setRelationalData(response);
+                localStorage.setItem('token', isLogin);
+                localStorage.setItem('data', JSON.stringify(response));
             } else {
                 alert("Credenziali errate");
             }
