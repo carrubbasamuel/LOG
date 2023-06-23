@@ -12,33 +12,39 @@ const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '',
-  database: 'samuelouss',
+  database: 'fakesite',
   port: 3306,
 });
 
 
-app.get('/node/get.js', (req, res) => {
-  connection.query("SELECT * FROM user", (err, result) => {
+//* Registrazione
+app.post('/register', (req, res) => {
+  const {email, password, nome, cognome, profile } = req.body;
+  const id = Math.floor(Math.random() * 1000000);
+
+  const sql = 'INSERT INTO user (id, mail, pass) VALUES (?, ?, ?)';
+  const values = [id, email, password];
+  connection.query(sql, values, (err, results) => {
     if (err) {
       console.error('Errore nell\'esecuzione della query:', err);
       res.status(500).json({ message: 'Errore nell\'esecuzione della query' });
     } else {
-      console.log(result);
-      res.json(result);
+      const sql = 'INSERT INTO anagrafica (id, nome, cognome, imgProfile) VALUES (?, ?, ?, ?)';
+      const values = [id, nome, cognome, profile];
+      connection.query(sql, values, (err, results) => {
+        if (err) {
+          console.error('Errore nell\'esecuzione della query:', err);
+          res.status(500).json({ message: 'Errore nell\'esecuzione della query' });
+        } else {
+          res.json({ success: true, message: 'Registrazione effettuata con successo' });
+        }
+      });
     }
   });
 });
 
 
-app.post('/insert.js', (req, res) => {
-  const { immagineUrl } = req.body;
-  const query = "INSERT INTO img (immagini, ) VALUES (?)";
-
-
-  
-});
-
-
+//* Login
 app.post('/login', (req, res) => {
   const { mail, pass } = req.body;
 
@@ -54,7 +60,7 @@ app.post('/login', (req, res) => {
     } else {
       if (results.length > 0) {
         const userId = results[0].id;
-        let sqlProducts = "SELECT * FROM products JOIN user ON products.id = user.id WHERE user.id = ?";
+        let sqlProducts = "SELECT * FROM anagrafica JOIN user ON anagrafica.id = user.id WHERE user.id = ?";
         const valuesProducts = [userId];
         
         connection.query(sqlProducts, valuesProducts, (err, products) => {
@@ -63,17 +69,15 @@ app.post('/login', (req, res) => {
             res.status(500).json({ message: 'Errore nell\'esecuzione della query' });
           } else {
             const listImg = [];
-            connection.query("SELECT * FROM img JOIN products ON products.id = img.id_user WHERE img.id_user = ?", [userId], (err, img) => {
+            connection.query("SELECT * FROM post JOIN anagrafica ON anagrafica.id = post.id WHERE post.id = ?", [userId], (err, img) => {
               if(err) {
                 console.error('Errore nell\'esecuzione della query:', err);
                 res.status(500).json({ message: 'Errore nell\'esecuzione della query' });
               }
               else {
                 for(let i = 0; i < img.length; i++) {
-                  listImg.push(img[i].immagini);
+                  listImg.push(img[i].img);
                 }
-                
-                console.log(listImg);
                 res.json({ success: true,  message: 'Accesso effettuato con successo', data: products, img: listImg });
               }
             });
@@ -90,25 +94,4 @@ app.post('/login', (req, res) => {
 
 
 
-app.delete('/node/delete.js', (req, res) => {
-  const { id } = req.body;
-
-  const sql = 'DELETE FROM user WHERE id = ?';
-  const values = [id];
-
-  connection.query(sql, values, (err, result) => {
-    if (err) {
-      console.error('Errore nell\'esecuzione della query:', err);
-      res.status(500).json({ message: 'Errore nell\'esecuzione della query' });
-    } else {
-      console.log('Dati eliminati correttamente dal database:', result);
-      res.json({ message: 'Dati eliminati correttamente dal database' });
-    }
-  });
-});
-
-
-
-app.listen(port, () => {
-  console.log(`Server in ascolto sulla porta ${port}`);
-});
+module.exports = app;

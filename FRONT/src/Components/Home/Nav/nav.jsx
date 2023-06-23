@@ -1,7 +1,8 @@
 import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
+import { Link } from 'react-router-dom';
 
-export default function Home() {
+export default function Nav({ handleLogout }) {
   return (
     <Navbar className="bg-body-tertiary">
       <Container>
@@ -9,7 +10,7 @@ export default function Home() {
         <Navbar.Toggle />
         <Navbar.Collapse className="justify-content-end">
           <Navbar.Text>
-            Signed in as: <a href="#login"></a>
+            Signed in as: <Link onClick={handleLogout} to="/">LogOut</Link>
           </Navbar.Text>
         </Navbar.Collapse>
       </Container>
